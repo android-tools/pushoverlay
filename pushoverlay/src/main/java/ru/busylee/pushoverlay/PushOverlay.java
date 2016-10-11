@@ -31,17 +31,19 @@ import java.util.Queue;
 
 public class PushOverlay {
 
+  private static final boolean DEBUG = false;
   private static Queue<Pushable> pushables = new ArrayDeque<>();
   private static final String TAG = "PushOverlay";
-  public static long MOVE_UP_DURATION = 300L;
-  public static long PUSH_DURATION = 2000L;
-  public static long FADE_OUT_DURATION = 1000L;
-  public static long FADE_OUT_DELAY = 4000L;
+  
+  static long MOVE_UP_DURATION = 300L;
+  static long PUSH_DURATION = 2000L;
+  static long FADE_OUT_DURATION = 1000L;
+  static long FADE_OUT_DELAY = 4000L;
 
   static WeakReference<Activity> activityWeakReference = new WeakReference<>(null);
 
   public static void attach(Activity activity) {
-    Log.d(TAG, "attach");
+    log("attach");
     activityWeakReference = new WeakReference<>(activity);
     Window window = activity.getWindow();
     if (window.findViewById(R.id.push_overlay_layout) == null) {
@@ -58,7 +60,7 @@ public class PushOverlay {
   }
 
   public static void push(Pushable pushable) {
-    Log.d(TAG, "push = [value=" + pushable.value + "]");
+    log("push = [value=" + pushable.value + "]");
     Activity activity = activityWeakReference.get();
     if (activity != null) {
       final View view = createPushView(pushable, activity);
@@ -100,7 +102,7 @@ public class PushOverlay {
 
       @Override
       public void onAnimationEnd(Animator animation) {
-        Log.d(TAG, "Animator.onAnimationEnd");
+        log("Animator.onAnimationEnd");
         ViewParent parent = view.getParent();
         if(parent instanceof ViewGroup) {
           final ViewGroup viewGroup = (ViewGroup) parent;
@@ -123,19 +125,19 @@ public class PushOverlay {
   }
 
   private static void recalculateYPositions(ViewGroup containerView) {
-    Log.d(TAG, "recalculateYPositions");
+    log("recalculateYPositions");
     int childCount = containerView.getChildCount();
     for(int indexInContainer = 0; indexInContainer < childCount; indexInContainer++) {
       final View view = containerView.getChildAt(indexInContainer);
       SmartProperty smartProperty = (SmartProperty) view.getTag();
       float finalYPosition = getFinalYPosition(view, containerView);
       if(smartProperty != null) {
-        Log.d(TAG, "recalculateYPositions [change] exists SmartProperty");
+        log("recalculateYPositions [change] exists SmartProperty");
         smartProperty.changeToPosition(finalYPosition);
       } else {
-        Log.d(TAG, "recalculateYPositions [move up] new SmartProperty");
+        log("recalculateYPositions [move up] new SmartProperty");
         final float fromPosition = view.getY();
-        Log.d(TAG, "recalculateYPositions [move up] " +
+        log("recalculateYPositions [move up] " +
           "from = " + fromPosition + " to = " + finalYPosition);
         smartProperty = SmartProperty.of(view, View.Y, fromPosition, finalYPosition);
         view.setTag(smartProperty);
@@ -149,7 +151,7 @@ public class PushOverlay {
 
   @NonNull
   private static Animator createPushAnimator(final View view, Window window) {
-    Log.d(TAG, "createPushAnimator");
+    log("createPushAnimator");
     Rect windowRect = getWindowRect(window);
     ViewGroup containerView = getContainerView(window);
     float finalYPosition = getFinalYPosition(view, containerView);
@@ -172,13 +174,13 @@ public class PushOverlay {
     float finalYPosition = 0f;
     int childCount = containerView.getChildCount();
     int viewIndex = containerView.indexOfChild(view);
-    Log.d(TAG, "createPushAnimator() childCount = " + childCount);
+    log("createPushAnimator() childCount = " + childCount);
     for (int index = 0; index < viewIndex; index++) {
       View childAt = containerView.getChildAt(index);
       int height = childAt.getMeasuredHeight();
-      Log.d(TAG, "createPushAnimator() height = " + height);
+      log("createPushAnimator() height = " + height);
       finalYPosition += height;
-      Log.d(TAG, "createPushAnimator() finalYPosition = " + finalYPosition);
+      log("createPushAnimator() finalYPosition = " + finalYPosition);
     }
     return finalYPosition;
   }
@@ -224,6 +226,12 @@ public class PushOverlay {
     return new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
   }
 
+  private static void log(String message) {
+    if(DEBUG) {
+      Log.d(TAG, message);
+    }
+  }
+  
   private static class SmartProperty {
 
     static Property<SmartProperty, Float> PROPERTY = new Property<SmartProperty, Float>(Float.class, "X") {

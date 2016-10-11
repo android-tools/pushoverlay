@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.1"
     defaultConfig {
         applicationId "ru.busylee.pushoverlay.testapp"
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
