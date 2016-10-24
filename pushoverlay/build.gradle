@@ -44,7 +44,7 @@ dependencies {
 publish {
     groupId = 'com.github.android-tools'
     artifactId = 'pushoverlay'
-    publishVersion = '0.0.2-alpha'
+    publishVersion = '0.0.3-alpha'
     desc = 'Simple android lib for pushing little messages as overlay messages for user. Especially convenient for dev assembles'
     licences = ['Apache-2.0']
     website = 'https://github.com/android-tools/pushoverlay'
